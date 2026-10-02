@@ -1,0 +1,5 @@
+ls -la
+cd docs
+exit x
+unknown_command
+ls

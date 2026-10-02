@@ -1,0 +1,3 @@
+ls -la
+cd docs
+exit
