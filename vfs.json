@@ -1,1 +1,15 @@
-{}
+{
+  "documents": {
+    "projects": {
+      "lab1": {
+        "info.txt": "123",
+        "notes.txt": "test"
+      },
+      "readme.txt": "hello"
+    },
+    "text.txt": "abc"
+  },
+  "downloads": {
+    "file.txt": "data"
+  }
+}

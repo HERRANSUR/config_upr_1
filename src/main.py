@@ -1,5 +1,22 @@
 import argparse
+import json
+import sys
 
+
+def load_vfs(vfs_path):
+    """
+    Загрузка структуры VFS из JSON-файла с обработкой ошибок.
+    """
+    try:
+        with open(vfs_path, "r", encoding="utf-8") as f:
+            vfs_data = json.load(f)
+            return vfs_data
+    except FileNotFoundError:
+        print(f"Ошибка: Файл VFS '{vfs_path}' не найден!")
+        sys.exit(1)
+    except json.JSONDecodeError:
+        print(f"Ошибка: Файл VFS '{vfs_path}' содержит некорректный JSON!")
+        sys.exit(1)
 
 def execute_command(user_input):
     """
