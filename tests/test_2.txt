@@ -1,3 +1,5 @@
-ls -la
-cd docs
+ls
+cd downloads
+pwd
+tac file.txt
 exit

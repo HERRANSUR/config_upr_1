@@ -2,7 +2,7 @@
   "documents": {
     "projects": {
       "lab1": {
-        "info.txt": "123",
+        "info.txt": "123\n555",
         "notes.txt": "test"
       },
       "readme.txt": "hello"

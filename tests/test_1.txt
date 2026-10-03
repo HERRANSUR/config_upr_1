@@ -1,5 +1,6 @@
-ls -la
-cd docs
-exit x
-unknown_command
 ls
+cd documents/./projects
+pwd
+cd x
+ls
+exit
