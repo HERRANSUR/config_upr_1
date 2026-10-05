@@ -1,0 +1,10 @@
+cd downloads
+mv file.txt /documents/projects
+ls
+cd /documents/projects
+ls
+mv lab1 ../
+ls
+cd ..
+ls
+exit

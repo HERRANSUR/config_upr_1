@@ -1,5 +1,6 @@
 ls
-cd downloads
+cd documents/./projects
 pwd
-tac file.txt
+cd x
+ls
 exit

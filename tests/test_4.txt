@@ -1,0 +1,8 @@
+cd downloads
+cp file.txt /documents/projects
+cd /documents/projects
+ls
+cp lab1 ../
+cd ..
+ls
+exit

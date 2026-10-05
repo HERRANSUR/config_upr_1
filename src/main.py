@@ -1,6 +1,7 @@
 import argparse
 import json
 import sys
+import copy
 
 
 def load_vfs(vfs_path):
@@ -60,6 +61,24 @@ def resolve_path(vfs_data, current_path, path_str):
 
     node = get_current_dir(vfs_data, temp_path)
     return node, temp_path
+
+
+def remove_node(vfs_data, current_path, path_str):
+    """Удаляет объект (файл или каталог) из VFS."""
+    parts = [p for p in path_str.split("/") if p]
+    if not parts:
+        return False
+
+    key_to_delete = parts[-1]
+    parent_parts = parts[:-1]
+    parent_str = ("/" if path_str.startswith("/") else "") + "/".join(parent_parts)
+
+    parent_node, _ = resolve_path(vfs_data, current_path, parent_str)
+    if isinstance(parent_node, dict) and key_to_delete in parent_node:
+        del parent_node[key_to_delete]
+        return True
+    return False
+
 
 def cmd_exit(args):
     """Логика команды exit."""
@@ -160,6 +179,74 @@ def cmd_tac(args, vfs_data, current_path):
     return False, "Ошибка чтения файла"
 
 
+def cmd_cp(args, vfs_data, current_path):
+    """Команда cp (копирование)."""
+    if len(args) < 2:
+        print("Ошибка: cp: отсутствует целевой операнд")
+        return False, "Ошибка"
+
+    src_path, dst_path = args[0], args[1]
+    src_node, _ = resolve_path(vfs_data, current_path, src_path)
+
+    if src_node is None:
+        print(f"Ошибка: cp: не удалось открыть '{src_path}': Нет такого файла или каталога")
+        return False, "Ошибка"
+
+    src_parts = [p for p in src_path.split("/") if p]
+    if not src_parts:
+        print("Ошибка: cp: невозможно скопировать корень '/'")
+        return False, "Ошибка"
+
+    src_name = src_parts[-1]
+    dst_node, _ = resolve_path(vfs_data, current_path, dst_path)
+
+    if isinstance(dst_node, dict):
+        dst_node[src_name] = copy.deepcopy(src_node)
+        return True, None
+
+    if dst_path.endswith("/"):
+        print(f"Ошибка: cp: не удалось скопировать в '{dst_path}': Нет такого каталога")
+        return False, "Ошибка"
+
+    dst_parts = [p for p in dst_path.split("/") if p]
+    if not dst_parts:
+        print(f"Ошибка: cp: некорректный путь назначения '{dst_path}'")
+        return False, "Ошибка"
+
+    new_name = dst_parts[-1]
+    parent_parts = dst_parts[:-1]
+    dst_parent_str = ("/" if dst_path.startswith("/") else "") + "/".join(parent_parts)
+
+    dst_parent_node, _ = resolve_path(vfs_data, current_path, dst_parent_str)
+    if dst_parent_node is None or not isinstance(dst_parent_node, dict):
+        print(f"Ошибка: cp: не удалось создать '{dst_path}': Нет такого каталога")
+        return False, "Ошибка"
+
+    dst_parent_node[new_name] = copy.deepcopy(src_node)
+    return True, None
+
+
+def cmd_mv(args, vfs_data, current_path):
+    """Команда mv: копирование с последующим удалением."""
+    if len(args) < 2:
+        print("Ошибка: mv: отсутствует целевой операнд")
+        return False, "Ошибка"
+
+    src_path = args[0]
+    src_node, _ = resolve_path(vfs_data, current_path, src_path)
+
+    if src_node is None:
+        print(f"Ошибка: mv: не удалось переместить '{src_path}': Нет такого файла или каталога")
+        return False, "Ошибка"
+
+    success, err = cmd_cp(args, vfs_data, current_path)
+    if not success:
+        return False, err
+
+    remove_node(vfs_data, current_path, src_path)
+    return True, None
+
+
 def execute_command(user_input, vfs_data, current_path):
     """
     Разбор введенной строки и вызов соответствующей подфункции команды.
@@ -181,6 +268,10 @@ def execute_command(user_input, vfs_data, current_path):
         return cmd_cd(args, vfs_data, current_path)
     elif cmd == "tac":
         return cmd_tac(args, vfs_data, current_path)
+    elif cmd == "cp":
+        return cmd_cp(args, vfs_data, current_path)
+    elif cmd == "mv":
+        return cmd_mv(args, vfs_data, current_path)
     else:
         err_msg = f"Ошибка: неизвестная команда '{cmd}'"
         print(err_msg)

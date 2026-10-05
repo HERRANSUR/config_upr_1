@@ -3,3 +3,7 @@ call ./tests/test_1.bat
 call ./tests/test_2.bat
 call ./tests/test_3.bat
 call ./tests/test_4.bat
+call ./tests/test_5.bat
+call ./tests/test_6.bat
+call ./tests/test_7.bat
+call ./tests/test_8.bat
